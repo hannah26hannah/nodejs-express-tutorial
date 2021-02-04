@@ -12,6 +12,6 @@
 
 # 📝 Express Tutorial
 - Express Framework Development Setup
-- improved CRUD
-
+- Improved CRUD
+- Middlewares
 [Express TIL Doc](./Express/note.md)

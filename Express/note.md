@@ -119,6 +119,7 @@ res.redirect("/")
 ```
 
 # Express Tutorial 2
+📁 express 톺아보기
 ## MiddleWare - body-parser
 There are two import parts for Express:Router and Middleware.
 - body-parser : Parse HTTP request body
@@ -172,3 +173,112 @@ fs.writeFile(`./data/${title}`, description, "utf8", (err) => {
     res.redirect(`/page/${title}`)
 })
 ```
+## MiddleWare - Compression
+```bash
+npm install compression --save
+```
+
+```js
+const compression = require('compression');
+app.use(compression())
+```
+
+## Writing MiddleWare
+```js
+const express = require('express')
+const app = express()
+
+app.get('/', function (req, res) {
+  res.send('Hello World!')
+})
+
+app.listen(3000)
+```
+공통적으로 사용되고 있는 로직이 있다. 이 로직을 미들웨어로서 처리할 수 있다. 
+
+```js
+app.use(function (req, res, next) { 
+    fs.readdir("./data", (err, filelist) => { 
+        req.list = filelist;
+        next();
+    });
+})
+```
+그러나 이 경우 해당 로직이 필요하지 않은 요청에 대해서도 middleware를 사용하는 상황이 되므로 비효율적이다. 아래처럼 개선해줄 수 있다. 
+
+```js
+app.get("*", function (req, res, next) { 
+    fs.readdir("./data", (err, filelist) => { 
+        req.list = filelist;
+        next();
+    });
+})
+```
+get 방식에 대해서만 해당 middleware를 실행한다. 
+
+```js
+app.post("/create", (req, res) => { 
+    console.log("post 일 때", req.list) // undefined
+} 
+```
+post 방식일 때는 해당 middleware가 작동하지 않는 것을 알 수 있다. 
+
+## Using MiddleWare
+### Application-level middleware
+```js
+var express = require('express')
+var app = express()
+
+app.use(function (req, res, next) {
+  console.log('Time:', Date.now())
+  next() // 이 다음의 미들웨어가 실행될지 말지를 그 이전의 미들웨어가 결정하는 셈
+})
+```
+특정 경로에서만 미들웨어가 동작하도록 한다. 
+```js
+app.use('/user/:id', function (req, res, next) {
+  console.log('Request Type:', req.method)
+  next()
+})
+```
+미들웨어를 여러 개 붙여서 사용할 수도 있다. 
+```js
+app.use('/user/:id', function (req, res, next) {
+  console.log('Request URL:', req.originalUrl)
+  next() // 바로 뒤이어 나오는 아래 미들웨어를 실행하는 것과 다름없다.
+}, function (req, res, next) {
+  console.log('Request Type:', req.method)
+  next()
+})
+```
+
+두 개의 미들웨어, 하나의 미들웨어
+```js
+app.get('/user/:id', function (req, res, next) {
+  console.log('ID:', req.params.id) // 1
+  next()
+}, function (req, res, next) { // 2
+  res.send('User Info')
+})
+
+// handler for the /user/:id path, which prints the user ID
+app.get('/user/:id', function (req, res, next) { // 3
+  res.end(req.params.id) 
+})
+```
+1번이 호출되고, 2번이 호출되고, 그리고 next()가 쓰이지 않았으므로 3은 호출되지 않는다. 
+
+또한 조건문으로 분기를 주고 다양하게 next()를 호출할 수도 있다.
+```js
+app.get('/user/:id', function (req, res, next) {
+  if (req.params.id === '0') next('route') // 1
+  else next()
+}, function (req, res, next) { // 2
+  res.send('regular')
+})
+
+app.get('/user/:id', function (req, res, next) { //3
+  res.send('special')
+})
+```
+1의 조건을 만족하면, 인자를 갖는 next('route')의 호출에 따라 3이 실행되고, 그렇지 않으면 2가 실행될 것이다. 
