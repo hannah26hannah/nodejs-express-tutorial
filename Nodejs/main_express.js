@@ -4,7 +4,10 @@ const fs = require("fs");
 const template = require("./lib/template.js");
 const qs = require("querystring");
 const path = require("path");
+const bodyParser = require("body-parser");
 const sanitizeHtml = require('sanitize-html');
+
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.get("/", (req, res) => { 
     fs.readdir("./data", (err, filelist) => {
@@ -70,18 +73,13 @@ app.get("/create", (req, res) => {
 })
 
 app.post("/create", (req, res) => { 
-    let body = "";
-    req.on("data", (data) => { body += data; })
-    req.on("end", () => {
-        const post = qs.parse(body);
-        const title = post.title
-        const description = post.description            
-        fs.writeFile(`./data/${title}`, description, "utf8", (err) => {
-            if (err) throw err;
-            res.redirect(`/page/${title}`)
-        })
+    const post = req.body;
+    const title = post.title;
+    const description = post.description;
+    fs.writeFile(`./data/${title}`, description, "utf8", (err) => { 
+        if (err) throw err;
+        res.redirect(`/page/${title}`)
     })
-
 })
 
 app.get("/update/:pageId", (req, res) => {
@@ -120,36 +118,27 @@ app.get("/update/:pageId", (req, res) => {
 })
 
 app.post("/update", (req, res) => { 
-    let body = "";
-    req.on("data", (data) => { body += data; })
-    req.on("end", () => {
-        const post = qs.parse(body);
-        const id = post.id;
-        const title = post.title;
-        const description = post.description;
-        
-        fs.rename(`./data/${id}`, `./data/${title}`, (err) => {
-            if (err) throw err;
-            fs.writeFile(`data/${title}`, description, "utf8", (err) => {
-                res.writeHead(302, {Location: `/page/${title}`})
-                res.end();
-            })
+    const post = req.body;
+    const id = post.id;
+    const title = post.title;
+    const description = post.description;
+    
+    fs.rename(`./data/${id}`, `./data/${title}`, (err) => {
+        if (err) throw err;
+        fs.writeFile(`data/${title}`, description, "utf8", (err) => {
+            res.writeHead(302, {Location: `/page/${title}`})
+            res.end();
         })
     })
 })
 
 app.post("/delete", (req, res) => { 
-    let body = "";
-    req.on("data", (data) => { body += data; })
-    req.on("end", () => {
-        const post = qs.parse(body);
-        const id = post.id;
-        const filteredId = path.parse(id).base;
-        fs.unlink(`./data/${filteredId}`, (err) => {
-            if (err) throw err;
-            
-            res.redirect("/")
-        })
+    const post = req.body;
+    const id = post.id;
+    const filteredId = path.parse(id).base;
+    fs.unlink(`./data/${filteredId}`, (err) => {
+        if (err) throw err;   
+        res.redirect("/")
     })
 })
 app.listen(3000, () => console.log("Example App Listening on Port 3000!"))

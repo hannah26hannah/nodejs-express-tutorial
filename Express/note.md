@@ -119,3 +119,56 @@ res.redirect("/")
 ```
 
 # Express Tutorial 2
+## MiddleWare - body-parser
+There are two import parts for Express:Router and Middleware.
+- body-parser : Parse HTTP request body
+- cors
+- morgan
+- ...etc
+
+기존 post 방식을 body-parser를 이용해 여러 문제를 해결하거나 코드를 좀 더 깔끔하게 관리할 수 있다. 
+```bash
+npm install body-parser --save
+```
+
+bodyParser를 로드한다.
+```js
+const bodyParser = require("body-parser");
+```
+
+
+```js
+// parse application/x-www-form-urlencoded - Form Data의 경우
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json의 경우
+app.use(bodyParser.json())
+```
+ - bodyParser가 만들어내는 미들웨어를 표현하는 표현식. - main_express.js가 실행될 때마다, 즉, 사용자가 요청할 때마다 이 미들웨어가 실행되며 내부적으로 사용자가 전송한 post 메소드를 분석해서 해당 경로에 해당되는 콜백을 호출하도록 한다. 
+ - 호출하면서, `request`의 첫 번째 인자인 `body`라는 property를 생성한다. (기존에는 존재하지 않았음)
+
+```js
+// Before using Middleware
+let body = "";
+req.on("data", (data) => { body += data; })
+req.on("end", () => {
+    const post = qs.parse(body);
+    const title = post.title
+    const description = post.description            
+    fs.writeFile(`./data/${title}`, description, "utf8", (err) => {
+        if (err) throw err;
+        res.redirect(`/page/${title}`)
+    })
+})
+```
+
+```js
+// After using Middleware
+const post = req.body;
+const title = post.title;
+const description = post.description;
+fs.writeFile(`./data/${title}`, description, "utf8", (err) => { 
+    if (err) throw err;
+    res.redirect(`/page/${title}`)
+})
+```
