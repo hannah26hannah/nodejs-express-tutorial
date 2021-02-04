@@ -2,7 +2,6 @@
 
 Web Browser ---- Web Server (Apache, Nginx...)
 
-
 ```javaScript
 // main.js
 const http = require("http");

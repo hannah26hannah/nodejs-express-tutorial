@@ -17,7 +17,7 @@ module.exports = {
     list: function (filelist) {
             let list = "";
             filelist.forEach(file => { 
-                list += `<li><a href="/?id=${file}">${file}</a></li>`
+                list += `<li><a href="/page/${file}">${file}</a></li>`
             })
             return list;
     }
