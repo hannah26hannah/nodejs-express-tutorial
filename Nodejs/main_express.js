@@ -5,13 +5,25 @@ const bodyParser = require("body-parser");
 const compression = require('compression');
 const helmet = require("helmet");
 app.use(helmet());
+const cookie = require("cookie");
 
-const indexRouter = require("./routes/index.js");
+const indexRouter = require("./routes/index");
+const loginRouter = require("./routes/login");
+const logoutRouter = require("./routes/logout")
 const topicRouter = require("./routes/topic");
 
 app.use(express.static("public")); 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(compression())
+
+const auth = require("./nodejs/auth.js");
+
+app.use((req, res, next) => {
+    app.set("isOwner", auth.IsOwner(req, res))
+    app.set("authStatusUI", auth.AuthStatusUI(req, res))
+    next();
+})
+
 app.get("*", function (req, res, next) { 
     fs.readdir("./data", (err, filelist) => { 
         req.list = filelist;
@@ -19,8 +31,11 @@ app.get("*", function (req, res, next) {
     });
 })
 
-app.use("/", indexRouter); // /로 시작되는 주소에게 indexRouter라는 미들웨어를 적용한다. 
-app.use("/topic", topicRouter); // /topic으로 시작되는 주소들에게 topicRouter라는 미들웨어를 적용한다. 
+
+app.use("/", indexRouter);
+app.use("/login", loginRouter);
+app.use("/logout", logoutRouter);
+app.use("/topic", topicRouter);
 
 
 app.use((req, res, next) => {

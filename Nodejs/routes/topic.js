@@ -6,27 +6,36 @@ const fs = require("fs");
 const template = require("../lib/template.js");
 
 
-router.get("/create", (req, res) => { 
-        const title = "Create";
-        const list = template.list(req.list);
-        const html = template.html(title, list, `
-            <form action="/topic/create" method="post">
-                <p>
-                    <input type="text" name="title" placeholder="title">
-                </p>
-                <p>
-                    <textarea name="description" placeholder="description"></textarea>
-                </p>
-                <p>
-                    <input type="submit" value="submit">
-                </p>
-            </form>
-            `, ``
-        );
-        res.send(html)
+router.get("/create", (req, res) => {
+    if (req.app.get("isOwner") === false) { // 인증된 사용자가 아닐 경우
+        res.send(`Login Required <a href="/login">Go Login</a>`);
+        return false;
+    } 
+    const title = "Create";
+    const list = template.list(req.list);
+    const authStatusUI = req.app.get("authStatusUI");
+    const html = template.html(title, list, `
+        <form action="/topic/create" method="post">
+            <p>
+                <input type="text" name="title" placeholder="title">
+            </p>
+            <p>
+                <textarea name="description" placeholder="description"></textarea>
+            </p>
+            <p>
+                <input type="submit" value="submit">
+            </p>
+        </form>
+        `, ``, `${authStatusUI}`
+    );
+    res.send(html)
 })
 
-router.post("/create", (req, res) => { 
+router.post("/create", (req, res) => {
+    if (req.app.get("isOwner") === false) { // 인증된 사용자가 아닐 경우
+        res.send(`Login Required <a href="/login">Go Login</a>`);
+        return false;
+    }
     const post = req.body;
     const title = post.title;
     const description = post.description;
@@ -37,6 +46,10 @@ router.post("/create", (req, res) => {
 })
 
 router.get("/update/:pageId", (req, res) => {
+    if (req.app.get("isOwner") === false) { // 인증된 사용자가 아닐 경우
+        res.send(`Login Required <a href="/login">Go Login</a>`);
+        return false;
+    }
     const filteredId = path.parse(req.params.pageId).base
     fs.readFile(`./data/${filteredId}`, "utf8", (err, description) => {
         const title = req.params.pageId;
@@ -48,6 +61,7 @@ router.get("/update/:pageId", (req, res) => {
             }
         })
         const list = template.list(req.list);
+        const authStatusUI = req.app.get("authStatusUI");
         const html = template.html(title, list, 
             `
             <form action="/topic/update" method="post">
@@ -63,13 +77,18 @@ router.get("/update/:pageId", (req, res) => {
                 </p>
             </form>
             `,
-            `<a href="/topic/create">Create</a> <a href="/topic/update/${filteredId}">Update</a>`
+            `<a href="/topic/create">Create</a> <a href="/topic/update/${filteredId}">Update</a>`,
+            `${authStatusUI}`
         );
         res.send(html)
     })
 })
 
-router.post("/update", (req, res) => { 
+router.post("/update", (req, res) => {
+    if (req.app.get("isOwner") === false) { // 인증된 사용자가 아닐 경우
+        res.send(`Login Required <a href="/login">Go Login</a>`);
+        return false;
+    }
     const post = req.body;
     const id = post.id;
     const title = post.title;
@@ -84,7 +103,11 @@ router.post("/update", (req, res) => {
     })
 })
 
-router.post("/delete", (req, res, err) => { 
+router.post("/delete", (req, res, err) => {
+    if (req.app.get("isOwner") === false) { // 인증된 사용자가 아닐 경우
+        res.send(`Login Required <a href="/login">Go Login</a>`);
+        return false;
+    }
     const post = req.body;
     const id = post.id;
     const filteredId = path.parse(id).base;
@@ -108,6 +131,7 @@ router.get("/:pageId", (req, res, next) => {
                 }
             })
             const list = template.list(req.list)
+            const authStatusUI = req.app.get("authStatusUI");
             const html = template.html(title, list,
                     `<h2>${sanitizedTitle}</h2>${sanitizedDescrription}`,
                     `
@@ -117,7 +141,8 @@ router.get("/:pageId", (req, res, next) => {
                         <input type="hidden" name="id" value="${sanitizedTitle}">
                         <input type="submit" value="delete">
                     </form>
-            `);
+                    `,
+                    `${authStatusUI}`);
             res.send(html)
         }
     })

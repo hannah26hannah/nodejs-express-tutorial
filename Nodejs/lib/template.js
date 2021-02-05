@@ -1,13 +1,14 @@
 module.exports = {
-    html: function(title, list, body, control) {
+    html: function(title, list, body, control, authStatusUI) {
     return `<!doctype html>
             <html>
             <head>
-            <title>WEB ${title}</title>
+            <title>WEB${title}</title>
             <meta charset="utf-8">
             </head>
             <body>
-            <h1><a href="/">WEB2</a></h1>
+            ${authStatusUI}
+            <h1><a href="/">WEB</a></h1>
             <ul>${list}</ul>
             ${control}
             ${body}

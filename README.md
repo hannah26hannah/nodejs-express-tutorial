@@ -1,4 +1,5 @@
-# 📝 Nodejs Web Server Tutorial
+# 📝 Nodejs Tutorial
+## Web Server 
 - Node.js Web Server creation
 - CRUD
 - URL
@@ -9,6 +10,15 @@
 - Security Issues
 
 [Nodejs TIL Doc](./Nodejs/note.md)
+
+## Cookie Authentication
+- cookie, cookie parse를 위한 module
+- set-cookie
+- options of cookie
+- simple auth example
+- Module로 관리하기
+
+[Nodejs TIL Doc2](./Nodejs/note2.md)
 
 # 📝 Express Tutorial
 - Express Framework Development Setup
