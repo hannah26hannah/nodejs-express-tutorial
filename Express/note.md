@@ -339,3 +339,36 @@ router.get("/create", (req, res) => {
 }); 
 module.exports = router;
 ```
+## Security
+- Don't use deprecated or vulnerable versions of Express
+- Use TLS
+- Use Helmet (보안과 관련해서 일어날 수 있는 대표적 보안 이슈를 자동으로 해결해주는 모듈)
+  ```hash
+  npm install --save helmet
+  ```
+  ```js
+  const helmet = require("helmet");
+  app.use(helmet());
+  ```
+  - 옵션을 이용해 더 세밀하게 보안을 조정할 수 있다. 
+- Use Cookies securely
+- Ensure your dependencies are secure
+
+  ```bash
+  npm i nsp -g
+  ```
+
+  - 의존성의 취약점을 관리하도록 도와준다. 
+  기존에는 아래 명령어로 관리되었다. 
+
+  ```bash
+  nsp check # from
+  ```
+
+  아래 같은 사유로 인한 업데이트로 명령어가 바뀌었다. 
+
+  > "Beginning with npm@6, a new command, `npm audit`, recursively analyzes your dependency trees to identify specifically what's insecure, recommend a replacement, or fix it automatically with `npm audit fix`
+  ```bash
+  npm audit --audit-level high # to
+  ```
+  [Node Security service shutdown: getaddrinfo ENOTFOUND api.nodesecurity.io](https://stackoverflow.com/questions/53716991/node-security-service-shutdown-getaddrinfo-enotfound-api-nodesecurity-io)
