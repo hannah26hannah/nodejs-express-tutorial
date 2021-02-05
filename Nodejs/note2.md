@@ -60,11 +60,11 @@ res.writeHead(200, {
 ```js
 "Secure=Secure; Secure" // Network Tap에서 Response Header에서 쿠키 값이 확인되지만, Request Headers에는 확인이 되지 않음.
 ```
-## "Secure" (Optional)
+## Secure (Optional)
 Cookie is only sent to the server when a request is made with the `https:` scheme (except on localhost), and therefore is more resistent to man-in-the-middle attacks
 - Note : DO not assume that `Secure` prevents all access to sensitive information in cookies (session keys, login details, etc). Cookies with this attribute can still be read/modified with access to the client's hard disk, or from JavaScript if the `HttpOnly` cookie attribute is not set. 
 
-## "HttpOnly" (Optional)
+## HttpOnly (Optional)
 Forbids JavaScript from accessing the cookie, for example through the `Document.cookie` property. 
 - Note : a cookie that has been created with HttpOnly will still be sent with JavaScript-initiated requests, e.g. when calling `XMLHttpRequest.send()` or `fetch()`. This mitigates attacks against cross-site scripting(XSS)
 
