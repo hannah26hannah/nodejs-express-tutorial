@@ -282,3 +282,60 @@ app.get('/user/:id', function (req, res, next) { //3
 })
 ```
 1의 조건을 만족하면, 인자를 갖는 next('route')의 호출에 따라 3이 실행되고, 그렇지 않으면 2가 실행될 것이다. 
+
+## Serving Static files
+```js
+app.use(express.static("public")); 
+```
+지정한 폴더(public) 내에서 static files를 찾기 때문에 더욱 안전하게 파일들에 접근이 가능하다. 
+
+## Error Handling
+### 존재하지 않는 파일
+```js
+fs.readFile(path, "utf8", (err, data) => {
+  if (err) {
+    next(err);
+  }
+})
+```
+### 404 Error 
+```js
+app.use((req, res, next) => {
+    res.status(404).send("Sorry can not find that!")
+});
+```
+- 미들웨어는 순차적으로 실행됨 
+- Not Found로 인해 아무것도 처리하지 못할 경우를 위해 코드 하단에 작성한다.
+
+### Writing Error Handlers
+```js
+app.use((err, req, res, next) => { 
+    console.error(err.stack)
+    res.status(500).send("something broke!");
+})
+```
+next(err)가 실행된 경우 가운데 쓰인 다른 미들웨어는 무시되고, 위에 적은 에러 핸들러가 실행된다. (첫 번째 인자가 err, 총 인자는 네 개가 존재한다.)
+
+1. 에러가 존재할 경우 next(err) 처럼 인자를 가진 next()를 호출한다. 
+2. 인자의 값이 있는 경우에는 node.js는 인자가 네 개인 함수가 등록된 미들웨어를 호출된다. 
+3. 해당 미들웨어를 통해 최종적으로 에러 처리를 할 수 있게 된다. 
+
+## 라우터 (주소체계변경)
+서로 연관된 라우터들을 따로 모듈로 만들어 정리할 수 있다. 
+```js
+// main_express.js
+const express = require("express");
+const app = express()
+
+// topic.js
+const express = require("express");
+const router = express.Router();
+
+// ...
+
+// before : app.get("/topic/create", (req, res) => {})
+router.get("/create", (req, res) => { 
+  // ..
+}); 
+module.exports = router;
+```
